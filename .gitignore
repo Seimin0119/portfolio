@@ -152,3 +152,11 @@ dist
 .yarn/build-state.yml
 .yarn/install-state.gz
 .pnp.*
+
+node_modules/
+dist/
+.env
+mongodb-data/
+
+# Ignore local MongoDB database folders
+mongodb-data/

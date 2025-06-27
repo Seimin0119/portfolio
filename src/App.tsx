@@ -1,14 +1,25 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
-import './index.css'
+// src/App.tsx
+import { BrowserRouter as Router, Routes, Route, Link } from "react-router-dom";
+import {Home} from "./pages/Home";
+import {Register} from "./pages/Register";
+import {Posts} from "./pages/Posts";
 
 export default function App() {
   return (
-    <div className="text-center mt-10">
-      <h1 className="text-4xl font-bold text-blue-600">Tailwind 成功了 🎉</h1>
-      <p className="text-gray-600 mt-2">你已经成功配置 Tailwind CSS！</p>
-    </div>
+    <Router>
+      {/* 顶部导航栏 */}
+      <nav className="bg-gray-100 p-4 flex gap-6 justify-center shadow">
+        <Link to="/" className="text-blue-600 hover:underline">首页</Link>
+        <Link to="/register" className="text-blue-600 hover:underline">注册</Link>
+        <Link to="/posts" className="text-blue-600 hover:underline">帖子</Link>
+      </nav>
+
+      {/* 路由配置 */}
+      <Routes>
+        <Route path="/" element={<Home />} />
+        <Route path="/register" element={<Register />} />
+        <Route path="/posts" element={<Posts />} />
+      </Routes>
+    </Router>
   );
 }
