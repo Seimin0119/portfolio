@@ -9,6 +9,7 @@ import {
   Alert,
 } from "@mui/material";
 import { useNavigate } from "react-router-dom";
+import { useUser } from "../contexts/UserContext";
 
 export const Register: React.FC = () => {
   const [isLogin, setIsLogin] = useState(false);
@@ -20,6 +21,7 @@ export const Register: React.FC = () => {
   });
   const [error, setError] = useState<string | null>(null);
   const navigate = useNavigate();
+  const { login } = useUser();
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -36,14 +38,14 @@ export const Register: React.FC = () => {
 
       const bodyData = isLogin
         ? {
-            usernameOrEmail: formData.usernameOrEmail,
-            password: formData.password,
-          }
+          usernameOrEmail: formData.usernameOrEmail,
+          password: formData.password,
+        }
         : {
-            username: formData.username,
-            email: formData.email,
-            password: formData.password,
-          };
+          username: formData.username,
+          email: formData.email,
+          password: formData.password,
+        };
 
       const res = await fetch(url, {
         method: "POST",
@@ -59,8 +61,12 @@ export const Register: React.FC = () => {
       }
 
       if (isLogin) {
+        // 登录成功，保存userId
+        localStorage.setItem("user", JSON.stringify(data.user));
         // 登录成功，保存token，跳转帖子页
         localStorage.setItem("token", data.token);
+        // 登录成功后：
+        login(data.user);  // 👈 自动存入 context 和 localStorage，并刷新 avatar
         navigate("/posts");
       } else {
         // 注册成功，切换到登录页面
