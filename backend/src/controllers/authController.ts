@@ -75,3 +75,53 @@ export const loginUser = async (req: Request, res: Response) => {
     res.status(500).json({ message: "服务器错误" });
   }
 };
+
+// 修改用户资料
+export const updateProfile = async (req: Request, res: Response) => {
+  try {
+    const userId = req.params.id;
+    const { bio } = req.body;
+    let avatarUrl = "";
+
+    // 如果上传了头像文件
+    if (req.file) {
+      avatarUrl = `/uploads/${req.file.filename}`;
+    }
+
+    const updateData: any = {};
+    if (typeof bio === "string") updateData.bio = bio;
+    if (avatarUrl) updateData.avatar = avatarUrl;
+
+    const updatedUser = await User.findByIdAndUpdate(
+      userId,
+      { $set: updateData },
+      { new: true }
+    );
+
+    if (!updatedUser) {
+      return res.status(404).json({ message: "用户未找到" });
+    }
+
+    res.json({
+      message: "资料更新成功",
+      user: updatedUser,
+    });
+  } catch (error) {
+    console.error("更新失败", error);
+    res.status(500).json({ message: "服务器错误" });
+  }
+};
+
+export const getProfile = async (req: Request, res: Response) => {
+  try {
+    const user = await User.findById(req.params.id).select("avatar bio");
+    if (!user) return res.status(404).json({ message: "用户不存在" });
+    res.json({
+      avatar: user.avatar || "/default-avatar.png",
+      bio: user.bio || "",
+    });
+  } catch (error) {
+    res.status(500).json({ message: "服务器错误" });
+  }
+};
+

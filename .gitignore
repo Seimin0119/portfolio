@@ -156,7 +156,7 @@ dist
 node_modules/
 dist/
 .env
-mongodb-data/
+uploads/
 
 # Ignore local MongoDB database folders
 mongodb-data/
