@@ -1,9 +1,11 @@
 import { Request, Response } from "express";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
+import dotenv from "dotenv";
 import User from "../models/userModel";
 
-const JWT_SECRET = process.env.JWT_SECRET || "default_jwt_secret";
+dotenv.config();
+const JWT_SECRET = process.env.JWT_SECRET!;
 
 export const registerUser = async (req: Request, res: Response) => {
   try {
@@ -39,7 +41,6 @@ export const loginUser = async (req: Request, res: Response) => {
   try {
     const { usernameOrEmail, password } = req.body;
 
-    // 先找用户名或邮箱匹配的用户
     const user = await User.findOne({
       $or: [{ username: usernameOrEmail }, { email: usernameOrEmail }],
     });
@@ -48,13 +49,16 @@ export const loginUser = async (req: Request, res: Response) => {
       return res.status(400).json({ message: "用户不存在" });
     }
 
-    // 密码匹配
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
       return res.status(400).json({ message: "密码错误" });
     }
 
-    // 生成JWT
+    // 这里必须确认 JWT_SECRET 有值
+    if (!JWT_SECRET) {
+      throw new Error("JWT_SECRET 未配置");
+    }
+
     const token = jwt.sign(
       { id: user._id, username: user.username },
       JWT_SECRET,
@@ -80,7 +84,7 @@ export const loginUser = async (req: Request, res: Response) => {
 export const updateProfile = async (req: Request, res: Response) => {
   try {
     const userId = req.params.id;
-    const { bio } = req.body;
+    const { bio, username } = req.body;
     let avatarUrl = "";
 
     // 如果上传了头像文件
@@ -90,6 +94,7 @@ export const updateProfile = async (req: Request, res: Response) => {
 
     const updateData: any = {};
     if (typeof bio === "string") updateData.bio = bio;
+    if (typeof username === "string") updateData.username = username;
     if (avatarUrl) updateData.avatar = avatarUrl;
 
     const updatedUser = await User.findByIdAndUpdate(
@@ -114,11 +119,12 @@ export const updateProfile = async (req: Request, res: Response) => {
 
 export const getProfile = async (req: Request, res: Response) => {
   try {
-    const user = await User.findById(req.params.id).select("avatar bio");
+    const user = await User.findById(req.params.id).select("avatar bio username");
     if (!user) return res.status(404).json({ message: "用户不存在" });
     res.json({
       avatar: user.avatar || "/default-avatar.png",
       bio: user.bio || "",
+      username: user.username || "",
     });
   } catch (error) {
     res.status(500).json({ message: "服务器错误" });

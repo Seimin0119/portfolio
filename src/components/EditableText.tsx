@@ -1,46 +1,26 @@
 // src/components/EditableText.tsx
-import React, { useState, useEffect } from "react";
-import { TextField, Typography, IconButton } from "@mui/material";
-import EditIcon from "@mui/icons-material/Edit";
-import SaveIcon from "@mui/icons-material/Save";
+import React from "react";
+import { TextField, Typography } from "@mui/material";
 
 interface Props {
   value: string;
-  onSave: (newText: string) => void;
+  onChange: (newValue: string) => void;
+  editing?: boolean;
 }
 
-export const EditableText: React.FC<Props> = ({ value, onSave }) => {
-  const [editing, setEditing] = useState(false);
-  const [text, setText] = useState(value);
-
-  // 监听父组件 value 变化，同步更新内部 text
-  useEffect(() => {
-    setText(value);
-  }, [value]);
-
-  const handleSave = () => {
-    setEditing(false);
-    onSave(text);
-  };
+export const EditableText: React.FC<Props> = ({ value, onChange, editing = false }) => {
 
   return editing ? (
-    <>
-      <TextField
-        fullWidth
-        value={text}
-        onChange={(e) => setText(e.target.value)}
-        multiline
-      />
-      <IconButton onClick={handleSave}>
-        <SaveIcon />
-      </IconButton>
-    </>
+    <TextField
+      fullWidth
+      value={value}
+      onChange={(e) => onChange(e.target.value)}
+      multiline
+      size="small"
+    />
   ) : (
-    <div style={{ display: "flex", alignItems: "center" }}>
-      <Typography>{!value ? "暂无简介" : value}</Typography>
-      <IconButton onClick={() => setEditing(true)}>
-        <EditIcon />
-      </IconButton>
-    </div>
+    <Typography sx={{ textAlign: "left" }}>
+      {value?.trim() ? value : "暂无简介"}
+    </Typography>
   );
 };

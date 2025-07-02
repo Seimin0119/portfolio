@@ -6,14 +6,13 @@ export const Home: React.FC = () => {
     <Box
       sx={{
         width: "100vw",
-        height: "100vh",
+        height: "93vh",
         background: "linear-gradient(90deg, #5a67d8, #805ad5, #d53f8c)",
         display: "flex",
         flexDirection: "column",
         justifyContent: "center",
         alignItems: "center",
         color: "white",
-        px: 2,
         textAlign: "center",
       }}
     >

@@ -63,11 +63,12 @@ export const Register: React.FC = () => {
       if (isLogin) {
         // 登录成功，保存userId
         localStorage.setItem("user", JSON.stringify(data.user));
+        console.log("data.token111",data.token)
         // 登录成功，保存token，跳转帖子页
         localStorage.setItem("token", data.token);
         // 登录成功后：
         login(data.user);  // 👈 自动存入 context 和 localStorage，并刷新 avatar
-        navigate("/posts");
+        navigate("/profile");
       } else {
         // 注册成功，切换到登录页面
         setIsLogin(true);
@@ -82,13 +83,12 @@ export const Register: React.FC = () => {
     <Box
       sx={{
         width: "100vw",
-        height: "100vh",
+        height: "93vh",
         display: "flex",
         flexDirection: "column",
         justifyContent: "center",
         alignItems: "center",
         color: "white",
-        px: 2,
         textAlign: "center",
         background:
           "linear-gradient(90deg, #5a67d8, #805ad5, #d53f8c)",
