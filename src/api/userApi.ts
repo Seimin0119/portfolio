@@ -4,10 +4,12 @@ const API_BASE = "http://localhost:5000/api/auth";
 
 export const updateUserProfile = async (
     userId: string,
+    username: string,
     data: { bio?: string; avatar?: File }
 ) => {
     const formData = new FormData();
-    if (data.bio !== undefined) formData.append("bio", data.bio); // ✅ 允许空字符串
+    if (username) formData.append("username", username);
+    if (data.bio !== undefined) formData.append("bio", data.bio); // 允许空字符串
     if (data.avatar) formData.append("avatar", data.avatar);
 
     const res = await axios.put(`${API_BASE}/profile/${userId}`, formData, {

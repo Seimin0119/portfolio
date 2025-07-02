@@ -9,12 +9,40 @@ interface User {
     [key: string]: any;
 }
 
+interface Post {
+    _id: string;
+    content: string;
+    imageUrls?: string[];
+    isPublic: boolean;
+    tags?: string[];
+    createdAt: string;
+    updatedAt: string;
+    userId: string;
+}
+
+interface UserProfile {
+    username: string;
+    avatar: string;
+}
+
 interface UserContextType {
     user: User | null;
     avatarUrl: string;
     login: (userData: User) => void;
     logout: () => void;
     refreshUser: () => Promise<void>;
+    // 帖子信息
+    posts: Post[];
+    setPosts: React.Dispatch<React.SetStateAction<Post[]>>;
+    // 用户个人主页信息
+    userProfiles: Record<string, UserProfile>;
+    setUserProfiles: React.Dispatch<React.SetStateAction<Record<string, UserProfile>>>;
+    // 特定帖子信息
+    post: Post | null;
+    setPost: React.Dispatch<React.SetStateAction<Post | null>>;
+    // 特定用户的帖子信息
+    userPosts: Post[];
+    setUserPosts: React.Dispatch<React.SetStateAction<Post[]>>;
 }
 
 const UserContext = createContext<UserContextType | null>(null);
@@ -22,6 +50,10 @@ const UserContext = createContext<UserContextType | null>(null);
 export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     const [user, setUser] = useState<User | null>(null);
     const [avatarUrl, setAvatarUrl] = useState("/default-avatar.png");
+    const [posts, setPosts] = useState<Post[]>([]);
+    const [userProfiles, setUserProfiles] = useState<Record<string, UserProfile>>({});
+    const [userPosts, setUserPosts] = useState<Post[]>([]);
+     const [post, setPost] = useState<Post | null>(null);
 
     // 初始化：尝试从 localStorage 读取用户数据
     useEffect(() => {
@@ -68,7 +100,7 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }, [user?.id]);
 
     return (
-        <UserContext.Provider value={{ user, avatarUrl, login, logout, refreshUser }}>
+        <UserContext.Provider value={{ user, avatarUrl, login, logout, refreshUser, posts, setPosts, userProfiles, setUserProfiles, userPosts, setUserPosts, post, setPost }}>
             {children}
         </UserContext.Provider>
     );

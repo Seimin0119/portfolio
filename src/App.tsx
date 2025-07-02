@@ -1,22 +1,35 @@
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import { Home } from "./pages/Home";
-import { Register } from "./pages/Register";
+import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
+import { TopBar } from "./components/TopBar";
+import { BottomNavBar } from "./components/BottomNavBar";
 import { Posts } from "./pages/Posts";
 import { Profile } from "./pages/Profile";
-import { NavBar } from "./components/NavBar";
+import { Register } from "./pages/Register";
+import { PostDetailPage } from "./pages/PostDetailPage";
+import { PostCreatePage } from "./pages/PostCreatePage";
+import { PostEditPage } from "./pages/PostEditPage";
 import { UserProvider } from "./contexts/UserContext";
+import { isAuthenticated } from "./util/auth";
 
 export default function App() {
   return (
     <UserProvider>
       <Router>
-        <NavBar />
+        <TopBar />
         <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/register" element={<Register />} />
+          <Route path="/" element={<Posts />} />
           <Route path="/posts" element={<Posts />} />
-          <Route path="/profile" element={<Profile />} />
+          <Route path="/register" element={<Register />} />
+          <Route path="/create" element={<PostCreatePage />} />
+          <Route path="/edit/:id" element={<PostEditPage />} />
+          <Route
+            path="/profile"
+            element={
+              isAuthenticated() ? <Profile /> : <Navigate to="/register" replace />
+            }
+          />
+          <Route path="/post/:postId" element={<PostDetailPage />} />
         </Routes>
+        <BottomNavBar />
       </Router>
     </UserProvider>
   );
