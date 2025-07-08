@@ -68,7 +68,7 @@ export const Register: React.FC = () => {
         localStorage.setItem("token", data.token);
         // 登录成功后：
         login(data.user);  // 👈 自动存入 context 和 localStorage，并刷新 avatar
-        navigate("/profile");
+        navigate(`/profile/${data.user.id}`);
       } else {
         // 注册成功，切换到登录页面
         setIsLogin(true);

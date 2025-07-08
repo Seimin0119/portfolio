@@ -21,6 +21,8 @@ import { useUser } from "../contexts/UserContext";
 import LogoutIcon from "@mui/icons-material/Logout"; // 👈 新增
 import { useNavigate } from "react-router-dom";       // 👈 新增
 import { getPostsByUser } from "../api/postApi";
+import { useParams } from "react-router-dom";
+import { getUserStats } from "../api/likeApi";
 
 export const Profile: React.FC = () => {
   const [avatarUrl, setAvatarUrl] = useState("/default-avatar.png");
@@ -33,15 +35,32 @@ export const Profile: React.FC = () => {
     severity: "success",
   });
   const { login, logout, posts, setPosts, userProfiles, setUserProfiles } = useUser();
-  const user = getCurrentUser();
-  const userId = user?.id;
+  const currentUser = getCurrentUser();
+  console.log("currentUser", currentUser)
   const navigate = useNavigate();      // 👈 用于跳转
+  const { id: routeUserId } = useParams(); // 👈 routeUserId 就是从 /profile/:id 中来的
+  const isAuthor = routeUserId === currentUser.id;
+  const [userStats, setUserStats] = useState({ likes: 0, bookmarks: 0, total: 0 });
+
+  useEffect(() => {
+    const fetchStats = async () => {
+      try {
+        if (!routeUserId) return; // 没有 userId 参数就不执行
+        const stats = await getUserStats(routeUserId);
+        setUserStats(stats);
+      } catch (err) {
+        console.error("获取统计信息失败", err);
+      }
+    };
+
+    fetchStats();
+  }, [routeUserId]);
 
   useEffect(() => {
     const fetchProfile = async () => {
-      if (!user) return;
+      if (!routeUserId) return; // 没有 userId 参数就不执行
       try {
-        const data = await getUserProfile(userId);
+        const data = await getUserProfile(routeUserId);
         if (data.avatar) setAvatarUrl("http://localhost:5000" + data.avatar);
         if (data.bio !== undefined) setBio(data.bio);
         if (data.username) setUsername(data.username);
@@ -51,13 +70,14 @@ export const Profile: React.FC = () => {
     };
 
     fetchProfile();
-  }, []);
+  }, [routeUserId]);
 
   useEffect(() => {
     // 1. 获取帖子
     const fetchPostsWithAuthors = async () => {
       try {
-        const postsData = await getPostsByUser(userId);
+        if (!routeUserId) return; // 没有 userId 参数就不执行
+        const postsData = await getPostsByUser(routeUserId);
         setPosts(postsData);
 
         // 2. 提取所有 userId 并去重
@@ -83,14 +103,15 @@ export const Profile: React.FC = () => {
     };
 
     fetchPostsWithAuthors();
-  }, []);
+  }, [routeUserId]);
 
   const handleAvatarChange = async (file: File) => {
     try {
+      if (!routeUserId) return; // 没有 userId 参数就不执行
       setAvatarUrl(URL.createObjectURL(file));
-      await updateUserProfile(userId, username, { avatar: file });
+      await updateUserProfile(routeUserId, username, { avatar: file });
       setSnackbar({ open: true, message: "头像上传成功", severity: "success" });
-      login(user);
+      login(currentUser);
     } catch (err) {
       console.error(err);
       setSnackbar({ open: true, message: "头像上传失败", severity: "error" });
@@ -99,8 +120,9 @@ export const Profile: React.FC = () => {
 
   const handleUsernameSave = async (newText: string) => {
     try {
+      if (!routeUserId) return; // 没有 userId 参数就不执行
       setUsername(newText);
-      await updateUserProfile(userId, newText, { bio, avatar: undefined });
+      await updateUserProfile(routeUserId, newText, { bio, avatar: undefined });
       setSnackbar({ open: true, message: "昵称更新成功", severity: "success" });
     } catch (err) {
       console.error(err);
@@ -110,8 +132,9 @@ export const Profile: React.FC = () => {
 
   const handleBioSave = async (newText: string) => {
     try {
+      if (!routeUserId) return; // 没有 userId 参数就不执行
       setBio(newText);
-      await updateUserProfile(userId, username, { bio: newText });
+      await updateUserProfile(routeUserId, username, { bio: newText });
       setSnackbar({ open: true, message: "简介更新成功", severity: "success" });
     } catch (err) {
       console.error(err);
@@ -144,30 +167,31 @@ export const Profile: React.FC = () => {
       >
         <Container maxWidth="sm">
           <Paper sx={{ p: 2, position: "relative" }} elevation={6}>
-            <Box sx={{ position: "absolute", top: 16, right: 16, display: "flex", gap: 1 }}>
-              <IconButton
-                onClick={() => {
-                  if (isEditing) {
-                    handleSaveAll();
-                  } else {
-                    setIsEditing(true);
-                  }
-                }}
-              >
-                {isEditing ? <SaveIcon /> : <EditIcon />}
-              </IconButton>
-
-              <IconButton
-                color="error"
-                onClick={() => {
-                  if (window.confirm("确认要退出登录吗？")) {
-                    handleLogout();
-                  }
-                }}
-              >
-                <LogoutIcon />
-              </IconButton>
-            </Box>
+            {isAuthor && (
+              <Box sx={{ position: "absolute", top: 16, right: 16, display: "flex", gap: 1 }}>
+                <IconButton
+                  onClick={() => {
+                    if (isEditing) {
+                      handleSaveAll();
+                    } else {
+                      setIsEditing(true);
+                    }
+                  }}
+                >
+                  {isEditing ? <SaveIcon /> : <EditIcon />}
+                </IconButton>
+                <IconButton
+                  color="error"
+                  onClick={() => {
+                    if (window.confirm("确认要退出登录吗？")) {
+                      handleLogout();
+                    }
+                  }}
+                >
+                  <LogoutIcon />
+                </IconButton>
+              </Box>
+            )}
             <Box sx={{ display: "flex", alignItems: "center", mb: 3, ml: -1 }}>
               <EditableAvatar
                 src={avatarUrl}
@@ -205,7 +229,7 @@ export const Profile: React.FC = () => {
                 <Typography variant="body2">粉丝</Typography>
               </Box>
               <Box>
-                <Typography variant="h6">6997</Typography>
+                <Typography variant="h6">{userStats.total}</Typography>
                 <Typography variant="body2">获赞与收藏</Typography>
               </Box>
             </Box>

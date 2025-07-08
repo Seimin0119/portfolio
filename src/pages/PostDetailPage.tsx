@@ -21,6 +21,7 @@ import "swiper/swiper-bundle.css";
 import { getPostById, getPostsByUser, deletePostById } from "../api/postApi";
 import { useUser } from "../contexts/UserContext";
 import { getCurrentUser } from "../util/auth";
+import { PostActions } from "../components/PostActions";
 
 export const PostDetailPage: React.FC = () => {
     const { postId } = useParams();
@@ -101,16 +102,7 @@ export const PostDetailPage: React.FC = () => {
                     </>
                 )}
             </Box>
-
-            {/* {post.imageUrls && post.imageUrls.length > 0 && (
-                <Box
-                    component="img"
-                    src={`http://localhost:5000${post.imageUrls[0]}`}
-                    alt="主图"
-                    sx={{ width: "100%", borderRadius: 2 }}
-                />
-            )} */}
-            <Box sx={{ maxWidth: 350, mx: "auto" }}>
+            <Box sx={{ maxWidth: 400, mx: "auto" }}>
                 {/* 图片轮播，如果有图片才显示 */}
                 {post.imageUrls && post.imageUrls.length > 0 && (
                     <Swiper
@@ -137,6 +129,7 @@ export const PostDetailPage: React.FC = () => {
                     </Swiper>
                 )}
             </Box>
+            <PostActions post={post} />
             <Typography variant="body1" mt={2}>
                 {post.content}
             </Typography>

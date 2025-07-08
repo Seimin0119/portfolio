@@ -1,23 +1,6 @@
 import { Request, Response } from "express";
 import Post from "../models/postModel";
 
-// 上传照片
-export const uploadImages = async (req: Request, res: Response) => {
-    try {
-      const files = req.files as Express.Multer.File[];
-
-      if (!files || files.length === 0) {
-        return res.status(400).json({ message: "没有上传任何图片" });
-      }
-
-      const imageUrls = files.map((file) => `/uploads/${file.filename}`);
-      res.status(200).json({ imageUrls });
-    } catch (error) {
-      console.error("上传图片失败", error);
-      res.status(500).json({ message: "服务器错误" });
-    }
-};
-
 // 新增帖子
 export const createPost = async (req: Request, res: Response) => {
     try {
@@ -82,7 +65,7 @@ export const getPosts = async (req: Request, res: Response) => {
 // 查找特定帖子
 export const getPostById = async (req: Request, res: Response) => {
     try {
-        const postId = req.params.id;
+        const { postId } = req.params;
 
         if (!postId) {
             return res.status(400).json({ message: "缺少帖子 ID" });
@@ -110,7 +93,7 @@ export const getPostById = async (req: Request, res: Response) => {
 // 查找特定用户的所有帖子
 export const getPostsByUser = async (req: Request, res: Response) => {
     try {
-        const userId = req.params.id;
+        const { userId } = req.params;
         const currentUserId = (req as any).user?.id; // 当前登录用户的 ID（假设已通过中间件验证）
 
         if (!userId) {
@@ -136,7 +119,7 @@ export const getPostsByUser = async (req: Request, res: Response) => {
 // 编辑帖子
 export const updatePost = async (req: Request, res: Response) => {
     try {
-        const postId = req.params.id;
+        const { postId } = req.params
         const { content, imageUrls, isPublic, tags } = req.body;
         const userId = (req as any).user.id;
 
@@ -167,7 +150,7 @@ export const updatePost = async (req: Request, res: Response) => {
 // 删除帖子
 export const deletePost = async (req: Request, res: Response) => {
     try {
-        const postId = req.params.id;
+        const { postId } = req.params;
         const userId = (req as any).user.id;
 
         const post = await Post.findById(postId);
