@@ -7,6 +7,7 @@ import User from "../models/userModel";
 dotenv.config();
 const JWT_SECRET = process.env.JWT_SECRET!;
 
+// 用户注册接口
 export const registerUser = async (req: Request, res: Response) => {
   try {
     const { username, email, password } = req.body;
@@ -37,6 +38,7 @@ export const registerUser = async (req: Request, res: Response) => {
   }
 };
 
+// 用户登录接口
 export const loginUser = async (req: Request, res: Response) => {
   try {
     const { usernameOrEmail, password } = req.body;
@@ -117,9 +119,11 @@ export const updateProfile = async (req: Request, res: Response) => {
   }
 };
 
+// 获取用户资料
 export const getProfile = async (req: Request, res: Response) => {
   try {
-    const user = await User.findById(req.params.id).select("avatar bio username");
+    const { userId } = req.params;
+    const user = await User.findById(userId).select("avatar bio username");
     if (!user) return res.status(404).json({ message: "用户不存在" });
     res.json({
       avatar: user.avatar || "/default-avatar.png",

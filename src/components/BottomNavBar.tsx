@@ -7,13 +7,15 @@ import MessageIcon from "@mui/icons-material/Message";
 import PersonIcon from "@mui/icons-material/Person";
 import { useEffect, useState } from "react";
 import { isAuthenticated } from "../util/auth";
+import { getCurrentUser } from "../util/auth";
 
 export const BottomNavBar: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const [value, setValue] = useState(0);
-
-  const pathMap = ["/posts", "/following", "/create", "/messages", "/profile"];
+  const user = getCurrentUser();
+  const userId = user?.id;
+  const pathMap = ["/posts", "/following", "/create", "/messages", `/profile/${userId}`];
 
   useEffect(() => {
     const currentIndex = pathMap.indexOf(location.pathname);
@@ -21,17 +23,17 @@ export const BottomNavBar: React.FC = () => {
   }, [location.pathname]);
 
   const handleChange = (_event: any, newValue: number) => {
-    setValue(newValue);
-    const targetPath = pathMap[newValue];
+    const dynamicPathMap = ["/posts", "/following", "/create", "/messages", `/profile/${userId}`];
+    const targetPath = dynamicPathMap[newValue];
 
-    // 如果是点击 "我"（/profile），但未登录，跳转到 /register 登录页面
-    if (targetPath === "/profile" && !isAuthenticated()) {
-      navigate("/register");  // 👈 跳转到登录注册页
+    setValue(newValue);
+
+    if (targetPath.includes("/profile") && !isAuthenticated()) {
+      navigate("/register");
     } else {
-      navigate(targetPath);   // 👈 正常跳转
+      navigate(targetPath);
     }
   };
-
 
   return (
     <Paper sx={{ position: "fixed", bottom: 0, left: 0, right: 0, zIndex: 1000 }} elevation={3}>

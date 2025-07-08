@@ -13,7 +13,8 @@ import {
 import AddLocationIcon from "@mui/icons-material/AddLocation";
 import SendIcon from "@mui/icons-material/Send";
 import { ImageUploader } from "./ImageUploader";
-import { createPosts, updatePost, uploadImages } from "../api/postApi";
+import { createPosts, updatePost,  } from "../api/postApi";
+import { uploadImages } from "../api/uploadImgApi";
 
 interface PostEditorProps {
     postId?: string;

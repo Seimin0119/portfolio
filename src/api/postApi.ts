@@ -49,7 +49,6 @@ export const createPosts = async (
 
 export const getPosts = async (): Promise<Post[]> => {
     const token = localStorage.getItem("token");
-    console.log("请求时携带的 token:", token);
     if (!token) throw new Error("未登录，缺少 token");
 
     const res = await axios.get(`${API_BASE}/posts`, {
@@ -63,7 +62,6 @@ export const getPosts = async (): Promise<Post[]> => {
 
 export const getPostById = async (postId: string): Promise<Post> => {
     const token = localStorage.getItem("token");
-    console.log("请求时携带的 token:", token);
     if (!token) throw new Error("未登录，缺少 token");
 
     const res = await axios.get(`${API_BASE}/posts/${postId}`, {
@@ -77,7 +75,6 @@ export const getPostById = async (postId: string): Promise<Post> => {
 
 export const getPostsByUser = async (userId: string): Promise<Post[]> => {
     const token = localStorage.getItem("token");
-    console.log("请求时携带的 token:", token);
     if (!token) throw new Error("未登录，缺少 token");
 
     const res = await axios.get(`${API_BASE}/users/${userId}/posts`, {
@@ -90,7 +87,6 @@ export const getPostsByUser = async (userId: string): Promise<Post[]> => {
 
 export const deletePostById = async (postId: string): Promise<Post> => {
     const token = localStorage.getItem("token");
-    console.log("请求时携带的 token:", token);
     if (!token) throw new Error("未登录，缺少 token");
 
     const res = await axios.delete(`${API_BASE}/posts/${postId}`, {
@@ -103,26 +99,11 @@ export const deletePostById = async (postId: string): Promise<Post> => {
 
 export const updatePost = async (postId: string, updateData: UpdatePostData): Promise<Post> => {
     const token = localStorage.getItem("token");
-    console.log("请求时携带的 token:", token);
     if (!token) throw new Error("未登录，缺少 token");
 
     const res = await axios.put(`${API_BASE}/posts/${postId}`, updateData, {
         headers: {
             Authorization: `Bearer ${token}`,
-        },
-    });
-    return res.data;
-};
-
-export const uploadImages = async (formData: FormData): Promise<{ imageUrls: string[] }> => {
-    const token = localStorage.getItem("token");
-    console.log("请求时携带的 token:", token);
-    if (!token) throw new Error("未登录，缺少 token");
-
-    const res = await axios.post(`${API_BASE}/upload`, formData, {
-        headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "multipart/form-data",
         },
     });
     return res.data;

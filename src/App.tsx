@@ -22,7 +22,7 @@ export default function App() {
           <Route path="/create" element={<PostCreatePage />} />
           <Route path="/edit/:id" element={<PostEditPage />} />
           <Route
-            path="/profile"
+            path="/profile/:id"
             element={
               isAuthenticated() ? <Profile /> : <Navigate to="/register" replace />
             }
