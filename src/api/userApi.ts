@@ -7,6 +7,8 @@ export const updateUserProfile = async (
     username: string,
     data: { bio?: string; avatar?: File }
 ) => {
+    const token = localStorage.getItem("token");
+    if (!token) throw new Error("未登录，缺少 token");
     const formData = new FormData();
     if (username) formData.append("username", username);
     if (data.bio !== undefined) formData.append("bio", data.bio); // 允许空字符串
@@ -14,17 +16,20 @@ export const updateUserProfile = async (
 
     const res = await axios.put(`${API_BASE}/profile/${userId}`, formData, {
         headers: {
-            "Content-Type": "multipart/form-data",
+            Authorization: `Bearer ${token}`,
         },
-        withCredentials: true,
     });
 
     return res.data;
 };
 
 export const getUserProfile = async (userId: string) => {
+    const token = localStorage.getItem("token");
+    if (!token) throw new Error("未登录，缺少 token");
     const res = await axios.get(`${API_BASE}/profile/${userId}`, {
-        withCredentials: true, // 如果需要
+        headers: {
+            Authorization: `Bearer ${token}`,
+        },
     });
     return res.data;
 };

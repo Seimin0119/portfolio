@@ -4,7 +4,6 @@ export const getCurrentUser = () => {
   return stored ? JSON.parse(stored) : null;
 };
 
-
 export const isAuthenticated = (): boolean => {
   const token = localStorage.getItem("token");
   if (!token) return false;
