@@ -85,7 +85,7 @@ export const loginUser = async (req: Request, res: Response) => {
 // 修改用户资料
 export const updateProfile = async (req: Request, res: Response) => {
   try {
-    const userId = req.params.id;
+    const userId = (req as any).user.id;
     const { bio, username } = req.body;
     let avatarUrl = "";
 

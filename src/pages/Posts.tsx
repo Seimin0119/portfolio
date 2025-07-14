@@ -17,11 +17,13 @@ import "swiper/swiper-bundle.css";
 import { useUser } from "../contexts/UserContext";
 import { useNavigate } from "react-router-dom";       // 👈 新增
 import { PostActions } from "../components/PostActions";
+import { FollowButton } from "../components/FollowButton";
+import { getCurrentUser } from "../util/auth";
 
 export const Posts: React.FC = () => {
   const { posts, setPosts, userProfiles, setUserProfiles } = useUser();
   const navigate = useNavigate();      // 👈 用于跳转
-
+  const currentUserId = getCurrentUser().id;
   useEffect(() => {
     // 1. 获取帖子
     const fetchPostsWithAuthors = async () => {
@@ -85,16 +87,24 @@ export const Posts: React.FC = () => {
                         />
                       }
                       title={
-                        <Typography
-                          variant="subtitle1"
-                          onClick={() => navigate(`/profile/${post.userId}`)}
-                          sx={{ cursor: "pointer" }}
-                        >
-                          {author?.username || "未知用户"}
-                        </Typography>
+                        <Box display="flex" alignItems="center" justifyContent="space-between">
+                          <Typography
+                            variant="subtitle1"
+                            onClick={() => navigate(`/profile/${post.userId}`)}
+                            sx={{ cursor: "pointer" }}
+                          >
+                            {author?.username || "未知用户"}
+                          </Typography>
+
+                          {/* 👇 关注按钮：自己不显示 */}
+                          {post.userId !== currentUserId && (
+                            <FollowButton targetUserId={post.userId} />
+                          )}
+                        </Box>
                       }
                       subheader={new Date(createdAt).toLocaleDateString()}
                     />
+
                     <Box sx={{ cursor: "pointer" }} onClick={() => navigate(`/post/${post._id}`)}>
                       {/* 图片轮播，如果有图片才显示 */}
                       {imageUrls && imageUrls.length > 0 && (

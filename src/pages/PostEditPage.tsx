@@ -1,6 +1,6 @@
 // pages/PostEditPage.tsx
 import React, { useEffect, useState } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import { Box, CircularProgress, AppBar, Toolbar, Typography } from "@mui/material";
 import { getPostById } from "../api/postApi";
 import { PostEditor } from "../components/PostEditor";
@@ -8,7 +8,6 @@ import { PostEditor } from "../components/PostEditor";
 export const PostEditPage: React.FC = () => {
     const { id } = useParams<{ id: string }>();
     const [post, setPost] = useState<any>(null);
-    const navigate = useNavigate();
 
     useEffect(() => {
         if (id) {
@@ -33,7 +32,6 @@ export const PostEditPage: React.FC = () => {
                 initialTags={post.tags}
                 initialIsPublic={post.isPublic}
                 initialImages={post.imageUrls}
-                onSave={() => navigate("/")}
             />
         </Box>
     );

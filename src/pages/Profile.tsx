@@ -23,6 +23,7 @@ import { useNavigate } from "react-router-dom";       // 👈 新增
 import { getPostsByUser } from "../api/postApi";
 import { useParams } from "react-router-dom";
 import { getUserStats } from "../api/likeApi";
+import { getMyFollowings, getMyFollowers } from "../api/followApi";
 
 export const Profile: React.FC = () => {
   const [avatarUrl, setAvatarUrl] = useState("/default-avatar.png");
@@ -34,13 +35,31 @@ export const Profile: React.FC = () => {
     message: "",
     severity: "success",
   });
-  const { login, logout, posts, setPosts, userProfiles, setUserProfiles } = useUser();
+  const { logout, posts, setPosts, userProfiles, setUserProfiles } = useUser();
   const currentUser = getCurrentUser();
   console.log("currentUser", currentUser)
   const navigate = useNavigate();      // 👈 用于跳转
   const { id: routeUserId } = useParams(); // 👈 routeUserId 就是从 /profile/:id 中来的
   const isAuthor = routeUserId === currentUser.id;
   const [userStats, setUserStats] = useState({ likes: 0, bookmarks: 0, total: 0 });
+  const [followingCount, setFollowingCount] = useState(0);
+  const [followersCount, setFollowersCount] = useState(0);
+
+  useEffect(() => {
+    const fetchFollowData = async () => {
+      try {
+        if (!routeUserId) return; // 没有 userId 参数就不执行
+        const followings = await getMyFollowings(routeUserId);
+        const followers = await getMyFollowers(routeUserId);
+        setFollowingCount(followings.length);
+        setFollowersCount(followers.length);
+      } catch (err) {
+        console.error("获取关注数据失败", err);
+      }
+    };
+
+    fetchFollowData();
+  }, []);
 
   useEffect(() => {
     const fetchStats = async () => {
@@ -111,7 +130,6 @@ export const Profile: React.FC = () => {
       setAvatarUrl(URL.createObjectURL(file));
       await updateUserProfile(routeUserId, username, { avatar: file });
       setSnackbar({ open: true, message: "头像上传成功", severity: "success" });
-      login(currentUser);
     } catch (err) {
       console.error(err);
       setSnackbar({ open: true, message: "头像上传失败", severity: "error" });
@@ -220,12 +238,12 @@ export const Profile: React.FC = () => {
               textAlign="center"
               color="text.secondary"
             >
-              <Box>
-                <Typography variant="h6">2</Typography>
+              <Box onClick={() => navigate(`/relationship/${routeUserId}/followings`)}>
+                <Typography variant="h6">{followingCount}</Typography>
                 <Typography variant="body2">关注</Typography>
               </Box>
-              <Box>
-                <Typography variant="h6">189</Typography>
+              <Box onClick={() => navigate(`/relationship/${routeUserId}/followers`)}>
+                <Typography variant="h6">{followersCount}</Typography>
                 <Typography variant="body2">粉丝</Typography>
               </Box>
               <Box>

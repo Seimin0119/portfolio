@@ -13,16 +13,15 @@ import {
 import AddLocationIcon from "@mui/icons-material/AddLocation";
 import SendIcon from "@mui/icons-material/Send";
 import { ImageUploader } from "./ImageUploader";
-import { createPosts, updatePost,  } from "../api/postApi";
+import { createPosts, updatePost, } from "../api/postApi";
 import { uploadImages } from "../api/uploadImgApi";
-
+import { useNavigate } from "react-router-dom";
 interface PostEditorProps {
     postId?: string;
     initialContent?: string;
     initialIsPublic?: boolean;
     initialTags?: string[];
     initialImages?: string[];
-    onSave?: () => void;
 }
 
 export const PostEditor: React.FC<PostEditorProps> = ({
@@ -30,8 +29,7 @@ export const PostEditor: React.FC<PostEditorProps> = ({
     initialContent = "",
     initialIsPublic = true,
     initialTags = [],
-    initialImages = [],
-    onSave,
+    initialImages = []
 }) => {
     const [text, setText] = useState(initialContent);
     const [isPublic, setIsPublic] = useState(initialIsPublic);
@@ -39,6 +37,7 @@ export const PostEditor: React.FC<PostEditorProps> = ({
     const [tagInput, setTagInput] = useState("");
     const [existingImages, setExistingImages] = useState<string[]>(initialImages); // 后端图片路径
     const [newImages, setNewImages] = useState<File[]>([]); // 新上传图片文件
+    const navigate = useNavigate();
 
     const handleAddTag = (e: React.KeyboardEvent<HTMLInputElement>) => {
         if (e.key === "Enter" && tagInput.trim()) {
@@ -78,7 +77,7 @@ export const PostEditor: React.FC<PostEditorProps> = ({
                 alert("发布成功！");
             }
 
-            onSave?.();
+            navigate("/posts"); // ✅ 成功后跳转首页
         } catch (err) {
             alert("提交失败：" + (err as Error).message);
             console.error(err);
