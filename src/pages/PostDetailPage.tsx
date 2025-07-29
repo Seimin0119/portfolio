@@ -102,7 +102,7 @@ export const PostDetailPage: React.FC = () => {
                     </>
                 )}
             </Box>
-            <Box sx={{ maxWidth: 400, mx: "auto" }}>
+            <Box sx={{ width: "100%", maxWidth: 900, mx: "auto" }}>
                 {/* 图片轮播，如果有图片才显示 */}
                 {post.imageUrls && post.imageUrls.length > 0 && (
                     <Swiper

@@ -8,22 +8,34 @@ import {
   Alert,
   IconButton,
   Card,
-  Avatar
+  Avatar,
+  Button,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogContentText,
+  DialogActions,
+  Tooltip
 } from "@mui/material";
+import LogoutIcon from "@mui/icons-material/Logout";
 import EditIcon from "@mui/icons-material/Edit";
 import SaveIcon from "@mui/icons-material/Save";
+import SyncAltIcon from '@mui/icons-material/SyncAlt';
+import CheckCircleIcon from '@mui/icons-material/CheckCircle';
+import PersonAddAlt1Icon from '@mui/icons-material/PersonAddAlt1';
+import ChatIcon from '@mui/icons-material/Chat';
 import { EditableAvatar } from "../components/EditableAvatar";
 import { EditableText } from "../components/EditableText";
 import { EditableUsername } from "../components/EditableUsername";
 import { updateUserProfile, getUserProfile } from "../api/userApi";
 import { getCurrentUser } from "../util/auth";
 import { useUser } from "../contexts/UserContext";
-import LogoutIcon from "@mui/icons-material/Logout"; // 👈 新增
-import { useNavigate } from "react-router-dom";       // 👈 新增
+import { useNavigate } from "react-router-dom";
 import { getPostsByUser } from "../api/postApi";
 import { useParams } from "react-router-dom";
 import { getUserStats } from "../api/likeApi";
 import { getMyFollowings, getMyFollowers } from "../api/followApi";
+import { getFollowStatus, toggleFollow } from "../api/followApi";
 
 export const Profile: React.FC = () => {
   const [avatarUrl, setAvatarUrl] = useState("/default-avatar.png");
@@ -37,13 +49,23 @@ export const Profile: React.FC = () => {
   });
   const { logout, posts, setPosts, userProfiles, setUserProfiles } = useUser();
   const currentUser = getCurrentUser();
-  console.log("currentUser", currentUser)
   const navigate = useNavigate();      // 👈 用于跳转
   const { id: routeUserId } = useParams(); // 👈 routeUserId 就是从 /profile/:id 中来的
   const isAuthor = routeUserId === currentUser.id;
   const [userStats, setUserStats] = useState({ likes: 0, bookmarks: 0, total: 0 });
   const [followingCount, setFollowingCount] = useState(0);
   const [followersCount, setFollowersCount] = useState(0);
+  const [isFollowing, setIsFollowing] = useState(false);
+  const [mutualFollow, setMutualFollow] = useState(false);
+  const [showUnfollowDialog, setShowUnfollowDialog] = useState(false);
+
+  useEffect(() => {
+    if (!routeUserId) return;
+    getFollowStatus(routeUserId).then(res => {
+      setIsFollowing(res.status === "following");
+      setMutualFollow(res.status === "mutual");
+    });
+  }, [routeUserId]);
 
   useEffect(() => {
     const fetchFollowData = async () => {
@@ -173,6 +195,28 @@ export const Profile: React.FC = () => {
     navigate("/register");    // 👈 跳转到登录页
   };
 
+  const handleFollowClick = () => {
+    if (isFollowing) {
+      setShowUnfollowDialog(true);
+    } else {
+      if (!routeUserId) return; // 没有 userId 参数就不执行
+      // 直接关注
+      toggleFollow(routeUserId).then((res) => {
+        setIsFollowing(res.followed);
+        setMutualFollow(res.status === "mutual");
+      });
+    }
+  };
+
+  const handleUnfollow = () => {
+    if (!routeUserId) return; // 没有 userId 参数就不执行
+    toggleFollow(routeUserId).then((res) => {
+      setIsFollowing(res.followed);
+      setMutualFollow(res.status === "mutual");
+      setShowUnfollowDialog(false);
+    });
+  };
+
 
   return (
     <>
@@ -180,36 +224,92 @@ export const Profile: React.FC = () => {
         mt={8}
         sx={{
           width: "100vw",
+          display: "flex",
+          flexDirection: "column",
           bgcolor: "#f9f9f9",
         }}
       >
         <Container maxWidth="sm">
           <Paper sx={{ p: 2, position: "relative" }} elevation={6}>
-            {isAuthor && (
-              <Box sx={{ position: "absolute", top: 16, right: 16, display: "flex", gap: 1 }}>
-                <IconButton
-                  onClick={() => {
-                    if (isEditing) {
-                      handleSaveAll();
-                    } else {
-                      setIsEditing(true);
-                    }
-                  }}
-                >
-                  {isEditing ? <SaveIcon /> : <EditIcon />}
-                </IconButton>
-                <IconButton
-                  color="error"
-                  onClick={() => {
-                    if (window.confirm("确认要退出登录吗？")) {
-                      handleLogout();
-                    }
-                  }}
-                >
-                  <LogoutIcon />
-                </IconButton>
-              </Box>
-            )}
+            <Box sx={{ position: "absolute", top: 16, right: 16, display: "flex", gap: 1 }}>
+              {isAuthor ? (
+                <>
+                  <IconButton
+                    onClick={() => {
+                      if (isEditing) {
+                        handleSaveAll();
+                      } else {
+                        setIsEditing(true);
+                      }
+                    }}
+                  >
+                    {isEditing ? <SaveIcon /> : <EditIcon />}
+                  </IconButton>
+                  <IconButton
+                    color="error"
+                    onClick={() => {
+                      if (window.confirm("确认要退出登录吗？")) {
+                        handleLogout();
+                      }
+                    }}
+                  >
+                    <LogoutIcon />
+                  </IconButton>
+                </>
+              )
+                : (
+                  <>
+                    {/* 关注/已关注/互相关注 */}
+                    <Tooltip
+                      title={
+                        mutualFollow
+                          ? "互相关注"
+                          : isFollowing
+                            ? "已关注"
+                            : "关注"
+                      }
+                    >
+                      <IconButton
+                        color={
+                          mutualFollow
+                            ? "primary"
+                            : isFollowing
+                              ? "success"
+                              : "default"
+                        }
+                        onClick={handleFollowClick}
+                      >
+                        {mutualFollow ? (
+                          <SyncAltIcon />
+                        ) : isFollowing ? (
+                          <CheckCircleIcon />
+                        ) : (
+                          <PersonAddAlt1Icon />
+                        )}
+                      </IconButton>
+                    </Tooltip>
+                    {/* 私信 */}
+                    <Tooltip title="私信">
+                      <IconButton color="primary" onClick={() => navigate(`/messages/${routeUserId}`)}>
+                        <ChatIcon />
+                      </IconButton>
+                    </Tooltip>
+                  </>
+                )}
+            </Box>
+            <Dialog open={showUnfollowDialog} onClose={() => setShowUnfollowDialog(false)}>
+              <DialogTitle>取消关注</DialogTitle>
+              <DialogContent>
+                <DialogContentText>
+                  确定要取消关注该用户吗？
+                </DialogContentText>
+              </DialogContent>
+              <DialogActions>
+                <Button onClick={() => setShowUnfollowDialog(false)}>取消</Button>
+                <Button onClick={handleUnfollow} color="error">确定</Button>
+              </DialogActions>
+            </Dialog>
+
             <Box sx={{ display: "flex", alignItems: "center", mb: 3, ml: -1 }}>
               <EditableAvatar
                 src={avatarUrl}

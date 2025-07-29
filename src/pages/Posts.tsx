@@ -23,7 +23,8 @@ import { getCurrentUser } from "../util/auth";
 export const Posts: React.FC = () => {
   const { posts, setPosts, userProfiles, setUserProfiles } = useUser();
   const navigate = useNavigate();      // 👈 用于跳转
-  const currentUserId = getCurrentUser().id;
+  const currentUser = getCurrentUser();
+  const currentUserId = currentUser ? currentUser.id : null;
   useEffect(() => {
     // 1. 获取帖子
     const fetchPostsWithAuthors = async () => {
@@ -70,7 +71,7 @@ export const Posts: React.FC = () => {
         }}
       >
         <Container maxWidth="sm">
-          <Grid container spacing={4} mt={2}>
+          <Grid container spacing={4} mt={2} mb={5}>
             {posts.map((post) => {
               const { _id, content, createdAt, userId, imageUrls, tags } = post;
               const author = userProfiles[userId];
@@ -97,7 +98,7 @@ export const Posts: React.FC = () => {
                           </Typography>
 
                           {/* 👇 关注按钮：自己不显示 */}
-                          {post.userId !== currentUserId && (
+                          {post.userId !== currentUserId && currentUserId && (
                             <FollowButton targetUserId={post.userId} />
                           )}
                         </Box>

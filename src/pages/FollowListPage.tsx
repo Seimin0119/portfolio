@@ -43,7 +43,17 @@ export const FollowListPage: React.FC = () => {
         return followings;
     };
     return (
-        <Box sx={{ Width: "100%", mx: "auto", mt: 4 }}>
+        <Box
+            sx={{
+                width: "100vw",
+                minHeight: "100vh",
+                display: "flex",
+                flexDirection: "column",
+                bgcolor: "#f5f6fa",
+                py: 4,
+            }}
+            mt={4}
+        >
             <Tabs value={tab} onChange={handleTabChange} centered>
                 <Tab label="互相关注" value="mutual" />
                 <Tab label="关注" value="followings" />

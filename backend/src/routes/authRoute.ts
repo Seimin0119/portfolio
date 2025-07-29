@@ -10,7 +10,7 @@ import { toggleBookmarkPost, getBookmarkCount, getBookmarksByUser } from "../con
 import { addComment, getCommentsCount, getCommentsByPost } from "../controllers/commentController";
 import { upload } from "../middlewares/upload";
 import { getFollowStatus, toggleFollow, getFollowers, getFollowing } from "../controllers/followController";
-
+import { sendMessage, getMessages, getAllMyMessages  } from "../controllers/messageController";
 const router = Router();
 
 // 用户注册接口
@@ -87,5 +87,14 @@ router.get("/following/:userId", authenticateJWT as RequestHandler, requireLogin
 
 // 获取粉丝列表（谁关注了我）接口
 router.get("/followers/:userId", authenticateJWT as RequestHandler, requireLogin as RequestHandler, getFollowers as RequestHandler);
+
+// 发送消息
+router.post("/message", authenticateJWT as RequestHandler, requireLogin as RequestHandler,  sendMessage as RequestHandler);
+
+// 获取与某用户的消息
+router.get("/message/:userId", authenticateJWT as RequestHandler, requireLogin as RequestHandler,  getMessages as RequestHandler); 
+
+// 获取所有与当前用户相关的消息
+router.get("/all-messages", authenticateJWT as RequestHandler, requireLogin as RequestHandler, getAllMyMessages as RequestHandler);
 
 export default router;

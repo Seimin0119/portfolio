@@ -11,6 +11,8 @@ import { UserProvider } from "./contexts/UserContext";
 import { isAuthenticated } from "./util/auth";
 import { FollowListPage } from "./pages/FollowListPage";
 import { FollowFeedPage } from "./pages/FollowFeedPage";
+import { MessageListPage } from "./pages/MessageListPage";
+import { MessageDetailPage } from "./pages/MessageDetailPage";
 
 export default function App() {
   return (
@@ -25,6 +27,8 @@ export default function App() {
           <Route path="/create" element={<PostCreatePage />} />
           <Route path="/edit/:id" element={<PostEditPage />} />
           <Route path="/relationship/:id/:tab" element={<FollowListPage />} />
+          <Route path="/messages" element={<MessageListPage />} />
+          <Route path="/messages/:userId" element={<MessageDetailPage />} />
           <Route
             path="/profile/:id"
             element={

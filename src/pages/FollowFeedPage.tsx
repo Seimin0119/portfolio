@@ -22,7 +22,7 @@ import { FollowButton } from "../components/FollowButton";
 import { getCurrentUser } from "../util/auth";
 import type { FollowingUser } from "../api/followApi";
 
-export const FollowFeedPage: React.FC<FollowingUser> = () => {
+export const FollowFeedPage: React.FC = () => {
     const { posts, setPosts, userProfiles, setUserProfiles } = useUser();
     const navigate = useNavigate();
     const currentUserId = getCurrentUser().id;

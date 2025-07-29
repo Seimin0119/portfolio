@@ -10,6 +10,7 @@ import {
 } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import { useUser } from "../contexts/UserContext";
+const API_BASE = "http://localhost:5000";
 
 export const Register: React.FC = () => {
   const [isLogin, setIsLogin] = useState(false);
@@ -33,8 +34,8 @@ export const Register: React.FC = () => {
 
     try {
       const url = isLogin
-        ? "/api/auth/login"
-        : "/api/auth/register";
+        ? `${API_BASE}/api/auth/login`
+        : `${API_BASE}/api/auth/register`;
 
       const bodyData = isLogin
         ? {
@@ -63,7 +64,7 @@ export const Register: React.FC = () => {
       if (isLogin) {
         // 登录成功，保存userId
         localStorage.setItem("user", JSON.stringify(data.user));
-        console.log("data.token111",data.token)
+        console.log("data.token111", data.token)
         // 登录成功，保存token，跳转帖子页
         localStorage.setItem("token", data.token);
         // 登录成功后：
